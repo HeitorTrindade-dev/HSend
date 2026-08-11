@@ -4,7 +4,7 @@
 ███▀▀▀███    ▀████ ███      ███  ▀████ ███  ███
 ███   ███ ███████▀ ▀███████ ███    ███ ██████▀</pre>
 
-# HSEND — Compartilhamento Rápido de Arquivos via Túnel
+Compartilhamento Rápido de Arquivos via Túnel
 
 Uma ferramenta de linha de comando que sobe um servidor web local, expõe ele publicamente via **ngrok** e gera um **QR Code** na hora — permitindo enviar textos e arquivos entre dispositivos na mesma rede (ou fora dela) sem precisar instalar nada no dispositivo remetente. Construída em Python com FastAPI.
 

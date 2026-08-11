@@ -51,8 +51,8 @@ Uma ferramenta de linha de comando que sobe um servidor web local, expõe ele pu
 ### 1. Clone o repositório
 
 ```bash
-git clone <url-do-seu-repositorio>
-cd <pasta-do-projeto>
+git clone https://github.com/HeitorTrindade-dev/HSend
+cd Hsend
 ```
 
 ### 2. Instale as dependências

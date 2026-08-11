@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSEND</title>
+<style>
+    :root {
+        --bg: #111214;
+        --surface: #1a1b1e;
+        --border: #2c2e33;
+        --text: #e8e8e6;
+        --text-dim: #8a8c92;
+        --accent: #4d8dff;
+        --ok: #3ecf8e;
+        --erro: #ff5c5c;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 24px 16px 64px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    main {
+        width: 100%;
+        max-width: 420px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .ascii-container {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px 8px;
+        display: flex;
+        justify-content: center;
+        overflow-x: auto;
+    }
+
+    .ascii-logo {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 8.5px;
+        line-height: 1;
+        white-space: pre;
+        color: var(--text);
+        margin: 0;
+    }
+
+    section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    section h2 {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-dim);
+        margin: 0;
+    }
+
+    label {
+        font-size: 13px;
+        color: var(--text-dim);
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        color: var(--text);
+        font-size: 16px;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="file"]:focus-visible,
+    button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .arquivo-input {
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 14px;
+        color: var(--text-dim);
+        background: var(--bg);
+        cursor: pointer;
+    }
+
+    .arquivo-nome {
+        font-size: 13px;
+        color: var(--text);
+        min-height: 16px;
+    }
+
+    button {
+        appearance: none;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    button:active {
+        opacity: 0.85;
+    }
+
+    button:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+
+    .status {
+        font-size: 13px;
+        min-height: 16px;
+    }
+
+    .status.ok { color: var(--ok); }
+    .status.erro { color: var(--erro); }
+    .status.espera { color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<main>
+    <div class="ascii-container">
+<div class="ascii-logo">▄▄▄   ▄▄▄  ▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄    ▄▄▄ ▄▄▄▄▄▄
+███   ███ █████▀▀▀ ███▀▀▀▀▀ ████▄  ███ ███▀▀██▄
+█████████  ▀████▄  ███▄▄    ███▀██▄███ ███  ███
+███▀▀▀███    ▀████ ███      ███  ▀████ ███  ███
+███   ███ ███████▀ ▀███████ ███    ███ ██████▀ </div>
+    </div>
+
+    <!-- Senha Global -->
+    <section>
+        <h2>Autenticação</h2>
+        <div class="campo">
+            <label for="senhaGlobal">Senha Geral</label>
+            <input type="password" id="senhaGlobal" placeholder="Digite a senha única" autocomplete="off">
+        </div>
+    </section>
+
+    <section>
+        <h2>Mensagem</h2>
+        <form id="formulario">
+            <div class="campo">
+                <label for="mensagem">Texto</label>
+                <input type="text" id="mensagem" autocomplete="off">
+            </div>
+            <button type="submit">Enviar mensagem</button>
+            <p class="status" id="statusTexto"></p>
+        </form>
+    </section>
+
+    <section>
+        <h2>Arquivo</h2>
+        <form id="formularioArquivo">
+            <div class="campo">
+                <label for="arquivo">Selecionar arquivo</label>
+                <input type="file" id="arquivo" class="arquivo-input">
+                <p class="arquivo-nome" id="nomeArquivo"></p>
+            </div>
+            <button type="submit" id="botaoArquivo">Enviar arquivo</button>
+            <p class="status" id="statusArquivo"></p>
+        </form>
+    </section>
+</main>
+
+<script>
+    function mostrarStatus(elemento, texto, tipo) {
+        elemento.textContent = texto;
+        elemento.className = "status " + tipo;
+    }
+
+    const senhaGlobalInput = document.getElementById("senhaGlobal");
+
+    // --- Texto ---
+    const formTexto = document.getElementById("formulario");
+    const statusTexto = document.getElementById("statusTexto");
+
+    formTexto.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const mensagem = document.getElementById("mensagem").value;
+        const senha = senhaGlobalInput.value;
+
+        if (!mensagem) {
+            mostrarStatus(statusTexto, "Escreva uma mensagem.", "erro");
+            return;
+        }
+
+        mostrarStatus(statusTexto, "Enviando...", "espera");
+
+        try {
+            const resposta = await fetch("/enviar/texto", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mensagem, senha })
+            });
+
+            if (resposta.ok) {
+                mostrarStatus(statusTexto, "Mensagem enviada.", "ok");
+                document.getElementById("mensagem").value = "";
+            } else {
+                mostrarStatus(statusTexto, "Senha incorreta ou falha no envio.", "erro");
+            }
+        } catch {
+            mostrarStatus(statusTexto, "Não foi possível conectar ao servidor.", "erro");
+        }
+    });
+
+    // --- Arquivo ---
+    const formArquivo = document.getElementById("formularioArquivo");
+    const statusArquivo = document.getElementById("statusArquivo");
+    const inputArquivo = document.getElementById("arquivo");
+    const nomeArquivo = document.getElementById("nomeArquivo");
+    const botaoArquivo = document.getElementById("botaoArquivo");
+
+    inputArquivo.addEventListener("change", () => {
+        nomeArquivo.textContent = inputArquivo.files.length
+            ? inputArquivo.files[0].name
+            : "";
+    });
+
+    formArquivo.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const senha = senhaGlobalInput.value;
+
+        if (!inputArquivo.files.length) {
+            mostrarStatus(statusArquivo, "Selecione um arquivo.", "erro");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("senha", senha);
+        formData.append("arquivo", inputArquivo.files[0]);
+
+        botaoArquivo.disabled = true;
+        mostrarStatus(statusArquivo, "Aguardando confirmação no servidor...", "espera");
+
+        try {
+            const resposta = await fetch("/enviar/arquivo", {
+                method: "POST",
+                body: formData
+            });
+
+            const dados = await resposta.json();
+
+            if (dados.status === "ok") {
+                mostrarStatus(statusArquivo, "Arquivo enviado: " + dados.nome_arquivo, "ok");
+                inputArquivo.value = "";
+                nomeArquivo.textContent = "";
+            } else if (dados.status === "recusado") {
+                mostrarStatus(statusArquivo, "Arquivo recusado no servidor.", "erro");
+            } else {
+                mostrarStatus(statusArquivo, "Senha incorreta.", "erro");
+            }
+        } catch {
+            mostrarStatus(statusArquivo, "Não foi possível conectar ao servidor.", "erro");
+        } finally {
+            botaoArquivo.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>

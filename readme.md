@@ -4,37 +4,37 @@
 ███▀▀▀███    ▀████ ███      ███  ▀████ ███  ███
 ███   ███ ███████▀ ▀███████ ███    ███ ██████▀</pre>
 
-### Compartilhamento Rápido de Arquivos via Túnel ###
+### Compartilhamento Rápido e Seguro de Arquivos (Local & Túnel) ###
 
-Uma ferramenta de linha de comando que sobe um servidor web local, expõe ele publicamente via **ngrok** e gera um **QR Code** na hora — permitindo enviar textos e arquivos entre dispositivos na mesma rede (ou fora dela) sem precisar instalar nada no dispositivo remetente. Construída em Python com FastAPI.
+Uma ferramenta CLI leve e poderosa que sobe um servidor web local com FastAPI, gera um **QR Code** imediato no terminal e opcionalmente expõe via túnel **ngrok** — permitindo enviar textos e arquivos entre celular e computador (e vice-versa) sem precisar instalar nenhum aplicativo no remetente.
 
 ---
 
 ## 🚀 Tech Stack
 
-- **Python 3**
-- **FastAPI** para a API e servir os arquivos estáticos
-- **Uvicorn** como servidor ASGI
-- **pyngrok** para abrir o túnel público automaticamente
-- **qrcode** para gerar o QR Code de acesso no terminal
-- **HTML / CSS / JS** puro no front-end (`static/index.html`)
+- **Python 3.8+**
+- **FastAPI** para rotas assíncronas e API REST
+- **Uvicorn** como servidor ASGI de alta performance
+- **pyngrok** para túneis seguros em redes externas
+- **qrcode** para geração de QR Code direto no terminal
+- **HTML5 / CSS3 / JavaScript Vanilla** no front-end (`static/index.html`)
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```
-├── main.py          # Ponto de entrada: sobe o servidor, o túnel e o QR Code
-├── configs.py        # Parsing de argumentos da CLI e configuração do ngrok
-├── controller.py      # Rotas da API (FastAPI APIRouter)
-├── services.py        # Regras de negócio: envio de texto e recebimento de arquivo
-├── validacao.py        # Validação da senha global de envio
-├── utils.py          # Exibição do QR Code e do banner no terminal
+├── main.py          # Ponto de entrada: orquestra servidor, túnel e inicialização
+├── configs.py        # Configurações de CLI, detecção de IP local e túnel ngrok
+├── controller.py      # Endpoints da API (FastAPI APIRouter)
+├── services.py        # Streaming de arquivos, validação, sanitização e listagem
+├── validacao.py        # Autenticação HMAC e proteção contra força bruta (rate limiting)
+├── utils.py          # Renderização de QR Code e banner no terminal
+├── requirements.txt   # Dependências do projeto
+├── install.sh         # Script de instalação global do comando 'hsend'
 └── static/
-    └── index.html      # Interface web usada pelo remetente
+    └── index.html     # Interface web moderna com drag-and-drop e progresso
 ```
-
-> Observação: `static/index.html` precisa existir na pasta `static/` na raiz do projeto — é o arquivo servido em `/` e é para onde o FastAPI aponta com `StaticFiles`.
 
 ---
 
@@ -42,7 +42,7 @@ Uma ferramenta de linha de comando que sobe um servidor web local, expõe ele pu
 
 - [Python](https://www.python.org/) 3.8+
 - `pip` para instalar as dependências
-- Uma conta gratuita no [ngrok](https://dashboard.ngrok.com/get-started/your-authtoken) (o token é pedido automaticamente na primeira execução)
+- *(Opcional)* Uma conta no [ngrok](https://dashboard.ngrok.com/get-started/your-authtoken) se desejar acesso fora da mesma rede Wi-Fi.
 
 ---
 
@@ -51,109 +51,69 @@ Uma ferramenta de linha de comando que sobe um servidor web local, expõe ele pu
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/HeitorTrindade-dev/HSend
-cd Hsend
+git clone https://github.com/HeitorTrindade-dev/HSend.git
+cd HSend
 ```
 
 ### 2. Instale as dependências
 
 ```bash
-# Se você tiver um arquivo requirements.txt com o conteúdo fornecido:
 pip install -r requirements.txt
-
-# Ou, se preferir instalar via linha de comando:
-pip install fastapi uvicorn pyngrok qrcode python-multipart
 ```
 
-### 3. Instale como comando global
+### 3. Instale como comando global (Opcional)
 
 ```bash
 chmod +x install.sh
 sudo bash install.sh
 ```
 
-Isso cria um symlink em `/usr/local/bin/hdomainhunter`, deixando a ferramenta disponível em qualquer lugar do sistema:
+Isso cria o comando `hsend` em `/usr/local/bin/hsend`, permitindo executá-lo a partir de qualquer pasta:
 ```bash
 hsend --help
 ```
-
-Na primeira execução, o programa vai pedir o token do ngrok — cole o que você pegou no link acima e ele fica salvo para as próximas vezes.
 
 ---
 
 ## 📡 Uso
 
+### Modo Rápido (Rede Local / Wi-Fi)
+Para transferências muito mais rápidas entre aparelhos no mesmo Wi-Fi, sem depender de internet nem de conta no ngrok:
 ```bash
-hsend --porta 8000 --senha minhasenha123
+hsend --no-tunnel
 ```
 
-Isso vai:
-1. Abrir um túnel ngrok apontando para a porta escolhida
-2. Imprimir o banner e um QR Code no terminal
-3. Subir o servidor em `http://127.0.0.1:8000`
+### Modo Túnel Público (ngrok)
+Expõe o servidor publicamente para transferências pela internet:
+```bash
+hsend
+```
 
-Basta escanear o QR Code (ou acessar a URL pública impressa) em qualquer dispositivo para abrir a interface e enviar textos/arquivos.
+### Com Senha e Pasta Customizada
+```bash
+hsend --senha minhasenha123 --output ~/Downloads/recebidos -y
+```
 
 ### 🔧 Argumentos da CLI
 
 | Argumento | Descrição |
 |---|---|
 | `-p`, `--port`, `--porta` | Porta local do servidor (padrão: `8000`) |
-| `-pw`, `-s`, `--password`, `--senha` | Senha exigida para enviar textos/arquivos (opcional — se não for definida, qualquer um pode enviar) |
+| `-pw`, `-s`, `--password`, `--senha` | Senha exigida para envio e download (opcional) |
+| `-o`, `--output`, `--output-dir` | Diretório onde os arquivos serão salvos (padrão: `./recebidos`) |
+| `-y`, `--yes`, `--auto-accept` | Aceita arquivos automaticamente sem confirmação interativa no terminal |
+| `--no-tunnel`, `--local` | Executa somente na rede local (Wi-Fi), sem abrir túnel ngrok |
+| `--zip` | Salva arquivos recebidos compactados em um arquivo `.zip` |
 
 ---
 
-## 🧠 Como Funciona o Fluxo
+## ✨ Principais Recursos e Melhorias
 
-```
-Dispositivo remetente (via QR Code / URL ngrok)
-    │
-    ▼
-[1] Envia texto ou arquivo + senha  →  static/index.html
-    │
-    ▼
-[2] FastAPI recebe a requisição      →  controller.py
-    │
-    ▼
-[3] Valida a senha global            →  validacao.py
-    │
-    ├── senha incorreta → requisição rejeitada
-    │
-    ▼ senha correta
-[4a] Texto  → impresso no terminal do host
-[4b] Arquivo → tamanho/tipo exibidos no terminal
-    │
-    ▼
-[5] Host confirma manualmente no terminal (s/n)
-    │
-    ├── recusado → arquivo descartado
-    │
-    ▼ aceito
-[6] Arquivo compactado em arquivos_recebidos.zip
-    (nomes duplicados recebem sufixo automático)
-```
-
----
-
-## 🧩 Visão Geral dos Módulos
-
-| Módulo | Responsabilidade |
-|---|---|
-| `main.py` | Ponto de entrada: parseia argumentos, define a senha, sobe o túnel ngrok, mostra banner/QR Code e inicia o Uvicorn |
-| `configs.py` | Configura e inicia o ngrok (incluindo captura do token na 1ª vez) e define os argumentos aceitos na CLI |
-| `controller.py` | Define as rotas `/`, `/enviar/texto` e `/enviar/arquivo` |
-| `services.py` | Lógica de envio de texto e de recebimento/confirmação/compactação de arquivos |
-| `validacao.py` | Guarda a senha em variável de ambiente e valida tentativas de envio |
-| `utils.py` | Imprime o banner ASCII e renderiza o QR Code no terminal |
-| `static/index.html` | Página enviada ao cliente, com formulários de texto e arquivo |
-
----
-
-## ⚠️ Uso Responsável
-
-Esta ferramenta expõe seu servidor local **publicamente** através do ngrok enquanto estiver rodando. Pontos a ter em mente:
-
-- A senha é **única e global** — não há autenticação por usuário.
-- O aceite de arquivos exige confirmação manual no terminal do host, mas a URL pública fica acessível a qualquer pessoa que a receba enquanto o processo estiver ativo.
-- Encerre o processo (`Ctrl+C`) assim que terminar de usar, para fechar o túnel e parar de expor a máquina.
-- Não use para receber arquivos de fontes não confiáveis sem revisar o conteúdo antes de abrir.
+- **⚡ Streaming em Chunks**: Arquivos grandes de até 500 MB são gravados em disco via streaming (1 MB por chunk), sem risco de estouro de memória RAM.
+- **🔒 Segurança & Rate Limiting**: Comparação de senha em tempo constante (`hmac.compare_digest`) e bloqueio automático de IP após 5 tentativas incorretas.
+- **🛡️ Prevenção contra Path Traversal**: Nomes de arquivo são rigorosamente sanitizados, impedindo ataques de travessia de diretório ou Zip Slip em Linux e Windows.
+- **🔄 Transferência Bidirecional**: Além de enviar arquivos para o computador, a interface web permite listar e baixar de volta no celular os arquivos salvos.
+- **📊 Progresso de Upload em Tempo Real**: Feedback visual com barra de progresso percentual via `XMLHttpRequest.upload`.
+- **📁 Múltiplos Arquivos e Drag-and-Drop**: Permite arrastar e soltar múltiplos arquivos simultaneamente.
+- **🤝 Concorrência Segura**: Lock assíncrono para o prompt no terminal, com timeout automático de 60 segundos caso o operador esteja ausente.
+- **🧹 Encerramento Limpo**: Limpeza automática de processos e túneis do ngrok ao fechar o terminal (`Ctrl+C`).

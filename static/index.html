@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -10,11 +9,14 @@
         --bg: #111214;
         --surface: #1a1b1e;
         --border: #2c2e33;
+        --border-hover: #4d8dff;
         --text: #e8e8e6;
         --text-dim: #8a8c92;
         --accent: #4d8dff;
+        --accent-hover: #3b76e1;
         --ok: #3ecf8e;
         --erro: #ff5c5c;
+        --alerta: #e5c07b;
     }
 
     * {
@@ -34,7 +36,7 @@
 
     main {
         width: 100%;
-        max-width: 420px;
+        max-width: 460px;
         display: flex;
         flex-direction: column;
         gap: 16px;
@@ -55,8 +57,16 @@
         font-size: 8.5px;
         line-height: 1;
         white-space: pre;
-        color: var(--text);
+        color: var(--accent);
         margin: 0;
+    }
+
+    .info-badge {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--text-dim);
+        padding: 4px 8px;
     }
 
     section {
@@ -66,7 +76,7 @@
         padding: 16px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
     }
 
     section h2 {
@@ -76,6 +86,9 @@
         letter-spacing: 0.04em;
         color: var(--text-dim);
         margin: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     label {
@@ -91,37 +104,94 @@
         border-radius: 8px;
         padding: 12px;
         color: var(--text);
-        font-size: 16px;
+        font-size: 15px;
+        transition: border-color 0.2s;
     }
 
     input[type="text"]:focus,
-    input[type="password"]:focus,
-    input[type="file"]:focus-visible,
-    button:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 1px;
+    input[type="password"]:focus {
+        outline: none;
+        border-color: var(--accent);
     }
 
     .campo {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 6px;
     }
 
-    .arquivo-input {
-        border: 1px dashed var(--border);
+    .dropzone {
+        border: 2px dashed var(--border);
         border-radius: 8px;
-        padding: 12px;
-        font-size: 14px;
-        color: var(--text-dim);
+        padding: 24px 16px;
+        text-align: center;
         background: var(--bg);
         cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
     }
 
-    .arquivo-nome {
+    .dropzone.dragover {
+        border-color: var(--accent);
+        background: rgba(77, 141, 255, 0.08);
+    }
+
+    .dropzone-icon {
+        font-size: 28px;
+    }
+
+    .dropzone-texto {
         font-size: 13px;
-        color: var(--text);
-        min-height: 16px;
+        color: var(--text-dim);
+    }
+
+    .lista-arquivos {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 140px;
+        overflow-y: auto;
+    }
+
+    .item-arquivo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+    }
+
+    .item-arquivo-nome {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 280px;
+    }
+
+    .item-arquivo-tamanho {
+        color: var(--text-dim);
+    }
+
+    .barra-progresso-container {
+        width: 100%;
+        height: 6px;
+        background: var(--bg);
+        border-radius: 4px;
+        overflow: hidden;
+        display: none;
+    }
+
+    .barra-progresso {
+        height: 100%;
+        width: 0%;
+        background: var(--accent);
+        transition: width 0.15s ease-out;
     }
 
     button {
@@ -131,172 +201,435 @@
         padding: 12px;
         background: var(--accent);
         color: #fff;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 600;
         cursor: pointer;
+        transition: background-color 0.2s, opacity 0.2s;
     }
 
-    button:active {
-        opacity: 0.85;
+    button:hover:not(:disabled) {
+        background: var(--accent-hover);
     }
 
     button:disabled {
         opacity: 0.5;
-        cursor: default;
+        cursor: not-allowed;
+    }
+
+    .btn-secundario {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .btn-secundario:hover:not(:disabled) {
+        background: var(--border);
+        color: var(--text);
     }
 
     .status {
         font-size: 13px;
-        min-height: 16px;
+        min-height: 18px;
+        word-break: break-word;
+        margin: 0;
     }
 
     .status.ok { color: var(--ok); }
     .status.erro { color: var(--erro); }
-    .status.espera { color: var(--text-dim); }
+    .status.espera { color: var(--accent); }
+    .status.alerta { color: var(--alerta); }
+
+    .downloads-lista {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .download-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    .download-link {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(77, 141, 255, 0.1);
+    }
+
+    .download-link:hover {
+        background: rgba(77, 141, 255, 0.2);
+    }
 </style>
 </head>
 <body>
 
 <main>
     <div class="ascii-container">
-<div class="ascii-logo">▄▄▄   ▄▄▄  ▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄    ▄▄▄ ▄▄▄▄▄▄
+        <div class="ascii-logo">▄▄▄   ▄▄▄  ▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄    ▄▄▄ ▄▄▄▄▄▄
 ███   ███ █████▀▀▀ ███▀▀▀▀▀ ████▄  ███ ███▀▀██▄
 █████████  ▀████▄  ███▄▄    ███▀██▄███ ███  ███
 ███▀▀▀███    ▀████ ███      ███  ▀████ ███  ███
-███   ███ ███████▀ ▀███████ ███    ███ ██████▀ </div>
+███   ███ ███████▀ ▀███████ ███    ███ ██████▀</div>
     </div>
 
-    <!-- Senha Global -->
+    <div class="info-badge">
+        <span id="badgeSenha">Verificando segurança...</span>
+        <span id="badgeLimite">Máx: 500 MB</span>
+    </div>
+
+    <!-- Autenticação -->
     <section>
         <h2>Autenticação</h2>
         <div class="campo">
-            <label for="senhaGlobal">Senha Geral</label>
-            <input type="password" id="senhaGlobal" placeholder="Digite a senha única" autocomplete="off">
+            <label for="senhaGlobal">Senha de Acesso</label>
+            <input type="password" id="senhaGlobal" placeholder="Digite a senha (se configurada)" autocomplete="off">
         </div>
     </section>
 
+    <!-- Envio de Mensagem -->
     <section>
-        <h2>Mensagem</h2>
-        <form id="formulario">
+        <h2>Enviar Mensagem</h2>
+        <form id="formularioTexto">
             <div class="campo">
-                <label for="mensagem">Texto</label>
-                <input type="text" id="mensagem" autocomplete="off">
+                <label for="mensagem">Texto ou Link</label>
+                <input type="text" id="mensagem" placeholder="Cole um texto, comando ou URL..." autocomplete="off">
             </div>
-            <button type="submit">Enviar mensagem</button>
+            <button type="submit" id="btnTexto">Enviar mensagem</button>
             <p class="status" id="statusTexto"></p>
         </form>
     </section>
 
+    <!-- Envio de Arquivos com Progresso e Suporte Múltiplo -->
     <section>
-        <h2>Arquivo</h2>
+        <h2>Enviar Arquivos</h2>
         <form id="formularioArquivo">
-            <div class="campo">
-                <label for="arquivo">Selecionar arquivo</label>
-                <input type="file" id="arquivo" class="arquivo-input">
-                <p class="arquivo-nome" id="nomeArquivo"></p>
+            <input type="file" id="arquivoInput" multiple style="display: none;">
+            
+            <div class="dropzone" id="dropzone">
+                <span class="dropzone-icon">📁</span>
+                <span class="dropzone-texto">Clique ou arraste arquivos aqui</span>
+                <span style="font-size: 11px; color: var(--text-dim);">(Suporta múltiplos arquivos)</span>
             </div>
-            <button type="submit" id="botaoArquivo">Enviar arquivo</button>
+
+            <div class="lista-arquivos" id="listaArquivos"></div>
+
+            <div class="barra-progresso-container" id="progressoContainer">
+                <div class="barra-progresso" id="barraProgresso"></div>
+            </div>
+
+            <button type="submit" id="btnArquivo" disabled>Enviar arquivos</button>
             <p class="status" id="statusArquivo"></p>
         </form>
+    </section>
+
+    <!-- Download de Arquivos do Computador -->
+    <section>
+        <h2>
+            <span>Arquivos no Computador</span>
+            <button type="button" class="btn-secundario" id="btnAtualizarDownloads">Atualizar</button>
+        </h2>
+        <div class="downloads-lista" id="listaDownloads">
+            <span style="font-size: 12px; color: var(--text-dim);">Clique em "Atualizar" para listar arquivos do PC.</span>
+        </div>
     </section>
 </main>
 
 <script>
+    const senhaInput = document.getElementById("senhaGlobal");
+    const badgeSenha = document.getElementById("badgeSenha");
+    const badgeLimite = document.getElementById("badgeLimite");
+
+    // Salva e restaura senha no sessionStorage
+    senhaInput.value = sessionStorage.getItem("hsend_pwd") || "";
+    senhaInput.addEventListener("input", () => {
+        sessionStorage.setItem("hsend_pwd", senhaInput.value);
+    });
+
     function mostrarStatus(elemento, texto, tipo) {
         elemento.textContent = texto;
         elemento.className = "status " + tipo;
     }
 
-    const senhaGlobalInput = document.getElementById("senhaGlobal");
+    // Carrega informações do servidor
+    async function carregarInfo() {
+        try {
+            const res = await fetch("/api/info");
+            if (res.ok) {
+                const data = await res.json();
+                if (data.senha_necessaria) {
+                    badgeSenha.textContent = "🔒 Senha Requerida";
+                    badgeSenha.style.color = "var(--alerta)";
+                } else {
+                    badgeSenha.textContent = "🔓 Sem Senha (Aberto)";
+                    badgeSenha.style.color = "var(--ok)";
+                }
+                badgeLimite.textContent = `Limite: ${data.limite_mb} MB`;
+            }
+        } catch {
+            badgeSenha.textContent = "Desconectado";
+        }
+    }
+    carregarInfo();
 
-    // --- Texto ---
-    const formTexto = document.getElementById("formulario");
+    // --- Envio de Texto ---
+    const formTexto = document.getElementById("formularioTexto");
+    const btnTexto = document.getElementById("btnTexto");
     const statusTexto = document.getElementById("statusTexto");
 
-    formTexto.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    formTexto.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById("mensagem").value.trim();
+        const senha = senhaInput.value;
 
-        const mensagem = document.getElementById("mensagem").value;
-        const senha = senhaGlobalInput.value;
-
-        if (!mensagem) {
-            mostrarStatus(statusTexto, "Escreva uma mensagem.", "erro");
+        if (!msg) {
+            mostrarStatus(statusTexto, "Digite uma mensagem antes de enviar.", "alerta");
             return;
         }
 
-        mostrarStatus(statusTexto, "Enviando...", "espera");
+        btnTexto.disabled = true;
+        mostrarStatus(statusTexto, "Enviando mensagem...", "espera");
 
         try {
-            const resposta = await fetch("/enviar/texto", {
+            const res = await fetch("/enviar/texto", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mensagem, senha })
+                body: JSON.stringify({ mensagem: msg, senha: senha })
             });
 
-            if (resposta.ok) {
-                mostrarStatus(statusTexto, "Mensagem enviada.", "ok");
+            if (res.ok) {
+                mostrarStatus(statusTexto, "Mensagem entregue com sucesso!", "ok");
                 document.getElementById("mensagem").value = "";
+            } else if (res.status === 401) {
+                mostrarStatus(statusTexto, "Senha incorreta.", "erro");
+            } else if (res.status === 429) {
+                mostrarStatus(statusTexto, "Muitas tentativas. Temporariamente bloqueado.", "erro");
             } else {
-                mostrarStatus(statusTexto, "Senha incorreta ou falha no envio.", "erro");
+                mostrarStatus(statusTexto, "Falha ao enviar mensagem.", "erro");
             }
         } catch {
-            mostrarStatus(statusTexto, "Não foi possível conectar ao servidor.", "erro");
+            mostrarStatus(statusTexto, "Erro de conexão com o servidor.", "erro");
+        } finally {
+            btnTexto.disabled = false;
         }
     });
 
-    // --- Arquivo ---
-    const formArquivo = document.getElementById("formularioArquivo");
+    // --- Envio de Arquivos (Múltiplos + Progresso) ---
+    const dropzone = document.getElementById("dropzone");
+    const arquivoInput = document.getElementById("arquivoInput");
+    const listaArquivos = document.getElementById("listaArquivos");
+    const btnArquivo = document.getElementById("btnArquivo");
     const statusArquivo = document.getElementById("statusArquivo");
-    const inputArquivo = document.getElementById("arquivo");
-    const nomeArquivo = document.getElementById("nomeArquivo");
-    const botaoArquivo = document.getElementById("botaoArquivo");
+    const progressoContainer = document.getElementById("progressoContainer");
+    const barraProgresso = document.getElementById("barraProgresso");
 
-    inputArquivo.addEventListener("change", () => {
-        nomeArquivo.textContent = inputArquivo.files.length
-            ? inputArquivo.files[0].name
-            : "";
+    let arquivosParaEnviar = [];
+
+    dropzone.addEventListener("click", () => arquivoInput.click());
+
+    dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
     });
 
-    formArquivo.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+    });
 
-        const senha = senhaGlobalInput.value;
+    dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer.files.length) {
+            adicionarArquivos(e.dataTransfer.files);
+        }
+    });
 
-        if (!inputArquivo.files.length) {
-            mostrarStatus(statusArquivo, "Selecione um arquivo.", "erro");
+    arquivoInput.addEventListener("change", () => {
+        if (arquivoInput.files.length) {
+            adicionarArquivos(arquivoInput.files);
+        }
+    });
+
+    function formatarTamanho(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    }
+
+    function adicionarArquivos(files) {
+        arquivosParaEnviar = Array.from(files);
+        renderizarListaArquivos();
+    }
+
+    function renderizarListaArquivos() {
+        listaArquivos.innerHTML = "";
+        if (arquivosParaEnviar.length === 0) {
+            btnArquivo.disabled = true;
             return;
         }
 
-        const formData = new FormData();
-        formData.append("senha", senha);
-        formData.append("arquivo", inputArquivo.files[0]);
+        arquivosParaEnviar.forEach((f) => {
+            const div = document.createElement("div");
+            div.className = "item-arquivo";
+            div.innerHTML = `
+                <span class="item-arquivo-nome">${f.name}</span>
+                <span class="item-arquivo-tamanho">${formatarTamanho(f.size)}</span>
+            `;
+            listaArquivos.appendChild(div);
+        });
 
-        botaoArquivo.disabled = true;
-        mostrarStatus(statusArquivo, "Aguardando confirmação no servidor...", "espera");
+        btnArquivo.disabled = false;
+        btnArquivo.textContent = arquivosParaEnviar.length === 1 
+            ? "Enviar 1 arquivo" 
+            : `Enviar ${arquivosParaEnviar.length} arquivos`;
+    }
+
+    function uploadArquivoIndividual(file, senha, index, total) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            const formData = new FormData();
+            formData.append("senha", senha);
+            formData.append("arquivo", file);
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const perc = Math.round((e.loaded / e.total) * 100);
+                    barraProgresso.style.width = perc + "%";
+                    mostrarStatus(
+                        statusArquivo,
+                        `Enviando [${index}/${total}]: ${file.name} (${perc}%)...`,
+                        "espera"
+                    );
+                }
+            };
+
+            xhr.onload = () => {
+                try {
+                    const resp = JSON.parse(xhr.responseText);
+                    if (xhr.status === 200 && resp.status === "ok") {
+                        resolve(resp);
+                    } else if (xhr.status === 401) {
+                        reject(new Error("Senha incorreta"));
+                    } else if (xhr.status === 413) {
+                        reject(new Error("Arquivo excede o limite máximo permitido"));
+                    } else if (xhr.status === 408) {
+                        reject(new Error("Tempo limite de confirmação esgotado"));
+                    } else if (xhr.status === 429) {
+                        reject(new Error("Muitas tentativas. Temporariamente bloqueado"));
+                    } else if (resp.status === "recusado") {
+                        reject(new Error("Arquivo recusado no computador"));
+                    } else {
+                        reject(new Error(resp.detail || "Falha no envio"));
+                    }
+                } catch {
+                    reject(new Error("Erro de resposta do servidor"));
+                }
+            };
+
+            xhr.onerror = () => reject(new Error("Erro de conexão de rede"));
+            xhr.open("POST", "/enviar/arquivo", true);
+            xhr.send(formData);
+        });
+    }
+
+    document.getElementById("formularioArquivo").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (arquivosParaEnviar.length === 0) return;
+
+        const senha = senhaInput.value;
+        btnArquivo.disabled = true;
+        progressoContainer.style.display = "block";
+        barraProgresso.style.width = "0%";
+
+        let sucesso = 0;
+        let erros = [];
+
+        for (let i = 0; i < arquivosParaEnviar.length; i++) {
+            const f = arquivosParaEnviar[i];
+            try {
+                mostrarStatus(statusArquivo, `Aguardando confirmação para: ${f.name}...`, "espera");
+                await uploadArquivoIndividual(f, senha, i + 1, arquivosParaEnviar.length);
+                sucesso++;
+            } catch (err) {
+                erros.push(`${f.name}: ${err.message}`);
+                break; // Interrompe em caso de erro crítico/senha incorreta
+            }
+        }
+
+        if (erros.length === 0) {
+            mostrarStatus(
+                statusArquivo,
+                `Sucesso! ${sucesso} arquivo(s) entregue(s).`,
+                "ok"
+            );
+            arquivosParaEnviar = [];
+            arquivoInput.value = "";
+            renderizarListaArquivos();
+            carregarArquivosDownload();
+        } else {
+            mostrarStatus(statusArquivo, erros[0], "erro");
+        }
+
+        setTimeout(() => {
+            progressoContainer.style.display = "none";
+            barraProgresso.style.width = "0%";
+            btnArquivo.disabled = arquivosParaEnviar.length === 0;
+        }, 1500);
+    });
+
+    // --- Seção de Downloads do Computador (Transferência Bidirecional) ---
+    const btnAtualizarDownloads = document.getElementById("btnAtualizarDownloads");
+    const listaDownloads = document.getElementById("listaDownloads");
+
+    async function carregarArquivosDownload() {
+        const senha = senhaInput.value;
+        listaDownloads.innerHTML = '<span style="font-size:12px; color:var(--text-dim);">Carregando arquivos...</span>';
 
         try {
-            const resposta = await fetch("/enviar/arquivo", {
-                method: "POST",
-                body: formData
-            });
-
-            const dados = await resposta.json();
-
-            if (dados.status === "ok") {
-                mostrarStatus(statusArquivo, "Arquivo enviado: " + dados.nome_arquivo, "ok");
-                inputArquivo.value = "";
-                nomeArquivo.textContent = "";
-            } else if (dados.status === "recusado") {
-                mostrarStatus(statusArquivo, "Arquivo recusado no servidor.", "erro");
+            const res = await fetch(`/arquivos?senha=${encodeURIComponent(senha)}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.arquivos.length === 0) {
+                    listaDownloads.innerHTML = '<span style="font-size:12px; color:var(--text-dim);">Nenhum arquivo disponível no momento.</span>';
+                    return;
+                }
+                listaDownloads.innerHTML = "";
+                data.arquivos.forEach(arq => {
+                    const item = document.createElement("div");
+                    item.className = "download-item";
+                    item.innerHTML = `
+                        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px;">
+                            <span>${arq.nome}</span>
+                            <div style="font-size:11px; color:var(--text-dim);">${arq.tamanho_kb.toFixed(1)} KB</div>
+                        </div>
+                        <a href="/download/${encodeURIComponent(arq.nome)}?senha=${encodeURIComponent(senha)}" 
+                           download="${arq.nome}" class="download-link">Baixar</a>
+                    `;
+                    listaDownloads.appendChild(item);
+                });
+            } else if (res.status === 401) {
+                listaDownloads.innerHTML = '<span style="font-size:12px; color:var(--erro);">Senha necessária ou incorreta.</span>';
             } else {
-                mostrarStatus(statusArquivo, "Senha incorreta.", "erro");
+                listaDownloads.innerHTML = '<span style="font-size:12px; color:var(--erro);">Erro ao obter arquivos.</span>';
             }
         } catch {
-            mostrarStatus(statusArquivo, "Não foi possível conectar ao servidor.", "erro");
-        } finally {
-            botaoArquivo.disabled = false;
+            listaDownloads.innerHTML = '<span style="font-size:12px; color:var(--erro);">Falha ao conectar ao servidor.</span>';
         }
-    });
+    }
+
+    btnAtualizarDownloads.addEventListener("click", carregarArquivosDownload);
 </script>
 
 </body>

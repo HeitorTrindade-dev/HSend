@@ -10,25 +10,27 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-DIRETORIO_ATUAL=$(pwd)
-ARQUIVO_PRINCIPAL="$DIRETORIO_ATUAL/main.py"
+DIRETORIO_SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ARQUIVO_PRINCIPAL="$DIRETORIO_SCRIPT/main.py"
 NOME_COMANDO="hsend"
 DESTINO="/usr/local/bin/$NOME_COMANDO"
 
-# Verifica se o main.py existe na pasta
 if [ ! -f "$ARQUIVO_PRINCIPAL" ]; then
-  echo -e "${VERMELHO}[-] Erro: 'main.py' não foi encontrado nesta pasta!${RESET}"
+  echo -e "${VERMELHO}[-] Erro: 'main.py' não foi encontrado em $DIRETORIO_SCRIPT!${RESET}"
   exit 1
 fi
 
-echo "[+] Instalando o HSend..."
+echo "[+] Instalando o HSend globalmente..."
 
 chmod +x "$ARQUIVO_PRINCIPAL"
 
-if [ -L "$DESTINO" ] || [ -f "$DESTINO" ]; then
-  rm -f "$DESTINO"
-fi
-ln -s "$ARQUIVO_PRINCIPAL" "$DESTINO"
+# Cria um wrapper executável em /usr/local/bin
+cat << EOF > "$DESTINO"
+#!/bin/bash
+exec python3 "$ARQUIVO_PRINCIPAL" "\$@"
+EOF
 
-echo -e "${VERDE}[+] Sucesso! O comando '$NOME_COMANDO' foi instalado globalmente.${RESET}"
-echo -e "${VERDE}[+] Agora você pode rodar de qualquer lugar digitando: ${RESET}hsend --help"
+chmod +x "$DESTINO"
+
+echo -e "${VERDE}[+] Sucesso! O comando '$NOME_COMANDO' foi instalado globalmente em $DESTINO.${RESET}"
+echo -e "${VERDE}[+] Agora você pode rodar de qualquer diretório digitando: ${RESET}hsend --help"
